@@ -4,20 +4,42 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+
+import controller.ClientHandleReceive;
+import controller.ClientHandleSend;
+
+import java.io.IOException;
+import java.net.Socket;
 import java.time.LocalDate;
+
+import model.Orders;
 import model.Product_Price_Views;
 
 public class UserViews extends javax.swing.JFrame {
 	private DefaultTableModel defaultTableModel;
 	private List<Product_Price_Views> pViews;
 	private int idUser;
-	private int idOrder = 0;
+	private int idOrder;
+	private Socket socket;
+	private ClientHandleSend clientHandleSend;
+	private ClientHandleReceive clientHandleReceive;
 
-	public UserViews(List<Product_Price_Views> pViews, int idUser) {
+	public UserViews(List<Product_Price_Views> pViews, int idUser, Socket socket) {
 		this.pViews = pViews;
 		this.idUser = idUser;
+		this.socket = socket;
 		initComponents();
 		setLocationRelativeTo(null);
+		try {
+			socket = new Socket("localhost", 40123);
+			clientHandleSend = new ClientHandleSend(socket);
+
+			clientHandleReceive = new ClientHandleReceive(socket);
+
+			clientHandleReceive.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		defaultTableModel = new DefaultTableModel() {
 			@Override
 			public boolean isCellEditable(int row, int column) {
@@ -127,11 +149,20 @@ public class UserViews extends javax.swing.JFrame {
 		} else {
 			int comfirm = JOptionPane.showConfirmDialog(this, "Bạn có muốn đặt hàng ?");
 			if (comfirm == JOptionPane.YES_NO_OPTION) {
-
-//				LocalDate currentDate = LocalDate.now();
-//				System.out.println("Ngày giờ hiện tại: " + currentDate);
+				idOrder = clientHandleReceive.getIdorder();
 				if (idOrder == 0) {
-					
+//					LocalDate currentDate = LocalDate.now();
+//					clientHandleSend.createOrder(currentDate + "", idUser, 1);
+//					idOrder = clientHandleReceive.getIdorder();
+
+					int idProduct = Integer.valueOf(String.valueOf(jtbProduct.getValueAt(selectedRow, 0)));
+					int idPrice = Integer.valueOf(String.valueOf(jtbProduct.getValueAt(selectedRow, 3)));
+//					clientHandleSend.insertOrderdetail(idOrder, idProduct, idPrice, currentDate + "");
+
+					String nameProduct = String.valueOf(jtbProduct.getValueAt(selectedRow, 1));
+					String nameUnit = String.valueOf(jtbProduct.getValueAt(selectedRow, 2));
+					clientHandleSend.getViewsOrderdetail(idProduct, nameProduct, nameUnit);
+
 				}
 			}
 		}

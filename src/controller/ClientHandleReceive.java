@@ -22,6 +22,8 @@ public class ClientHandleReceive extends Thread {
 
 	private Socket socket;
 	private DataInputStream dis;
+	private int idOrder;
+	private int sumEnd;
 
 	public ClientHandleReceive(Socket socket) {
 		this.socket = socket;
@@ -38,25 +40,33 @@ public class ClientHandleReceive extends Thread {
 
 		try {
 			synchronized (dis) {
-				int jsonLength = dis.readInt();
-				byte[] jsonBytes = new byte[jsonLength];
-				dis.readFully(jsonBytes);
-				String json = new String(jsonBytes);
-				JsonElement jsonElement = JsonParser.parseString(json);
-				JsonObject jsonObject = jsonElement.getAsJsonObject();
-				String notifyMode = jsonObject.get("notify").getAsString();
+				while (true) {
+					int jsonLength = dis.readInt();
+					byte[] jsonBytes = new byte[jsonLength];
+					dis.readFully(jsonBytes);
+					String json = new String(jsonBytes);
+					JsonElement jsonElement = JsonParser.parseString(json);
+					JsonObject jsonObject = jsonElement.getAsJsonObject();
+					String notifyMode = jsonObject.get("notify").getAsString();
 
-				if (notifyMode.equals("login-success")) {
-					int idUser = Integer.parseInt(jsonObject.get("content").getAsString());
-					List<Product_Price_Views> pViews = handleProductViews(jsonObject);
-					new UserViews(pViews, idUser).setVisible(true);
-				}
-				if (notifyMode.equals("login-failed")) {
-					String notifyContent = jsonObject.get("content").getAsString();
-					JOptionPane.showMessageDialog(null, notifyContent, "Thông báo", JOptionPane.ERROR_MESSAGE);
-					socket.close();
-					dis.close();
-					new LoginView().setVisible(true);
+					if (notifyMode.equals("login-success")) {
+						int idUser = Integer.parseInt(jsonObject.get("content").getAsString());
+						List<Product_Price_Views> pViews = handleProductViews(jsonObject);
+						new UserViews(pViews, idUser, socket).setVisible(true);
+					}
+					if (notifyMode.equals("login-failed")) {
+						String notifyContent = jsonObject.get("content").getAsString();
+						JOptionPane.showMessageDialog(null, notifyContent, "Thông báo", JOptionPane.ERROR_MESSAGE);
+						socket.close();
+						dis.close();
+						new LoginView().setVisible(true);
+					}
+					if (notifyMode.equals("getID-order")) {
+						idOrder = jsonObject.get("data").getAsInt();
+					}
+					if (notifyMode.equals("sum-end-product")) {
+						sumEnd = jsonObject.get("data").getAsInt();
+					}
 				}
 			}
 
@@ -81,6 +91,10 @@ public class ClientHandleReceive extends Thread {
 			pViews.add(pView);
 		}
 		return pViews;
+	}
+
+	public int getIdorder() {
+		return idOrder;
 	}
 
 }

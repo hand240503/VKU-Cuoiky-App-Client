@@ -122,6 +122,7 @@ public class LoginView extends javax.swing.JFrame {
 		String pass = jtfPass.getText().trim();
 		clientHandleSend.login(name, pass);
 		this.dispose();
+
 	}
 
 	public static void main(String args[]) {
