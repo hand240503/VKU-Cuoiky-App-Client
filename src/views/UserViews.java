@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.time.LocalDate;
 
+import model.DetailView;
 import model.Orders;
 import model.Product_Price_Views;
 
@@ -19,27 +20,25 @@ public class UserViews extends javax.swing.JFrame {
 	private DefaultTableModel defaultTableModel;
 	private List<Product_Price_Views> pViews;
 	private int idUser;
-	private int idOrder;
 	private Socket socket;
 	private ClientHandleSend clientHandleSend;
 	private ClientHandleReceive clientHandleReceive;
 
-	public UserViews(List<Product_Price_Views> pViews, int idUser, Socket socket) {
+	public UserViews(List<Product_Price_Views> pViews, int idUser) {
 		this.pViews = pViews;
 		this.idUser = idUser;
-		this.socket = socket;
 		initComponents();
 		setLocationRelativeTo(null);
 		try {
 			socket = new Socket("localhost", 40123);
-			clientHandleSend = new ClientHandleSend(socket);
-
-			clientHandleReceive = new ClientHandleReceive(socket);
-
-			clientHandleReceive.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		clientHandleSend = new ClientHandleSend(socket);
+
+		clientHandleReceive = new ClientHandleReceive(socket);
+		clientHandleReceive.start();
+
 		defaultTableModel = new DefaultTableModel() {
 			@Override
 			public boolean isCellEditable(int row, int column) {
@@ -149,21 +148,9 @@ public class UserViews extends javax.swing.JFrame {
 		} else {
 			int comfirm = JOptionPane.showConfirmDialog(this, "Bạn có muốn đặt hàng ?");
 			if (comfirm == JOptionPane.YES_NO_OPTION) {
-				idOrder = clientHandleReceive.getIdorder();
-				if (idOrder == 0) {
-//					LocalDate currentDate = LocalDate.now();
-//					clientHandleSend.createOrder(currentDate + "", idUser, 1);
-//					idOrder = clientHandleReceive.getIdorder();
-
-					int idProduct = Integer.valueOf(String.valueOf(jtbProduct.getValueAt(selectedRow, 0)));
-					int idPrice = Integer.valueOf(String.valueOf(jtbProduct.getValueAt(selectedRow, 3)));
-//					clientHandleSend.insertOrderdetail(idOrder, idProduct, idPrice, currentDate + "");
-
-					String nameProduct = String.valueOf(jtbProduct.getValueAt(selectedRow, 1));
-					String nameUnit = String.valueOf(jtbProduct.getValueAt(selectedRow, 2));
-					clientHandleSend.getViewsOrderdetail(idProduct, nameProduct, nameUnit);
-
-				}
+				LocalDate currentDate = LocalDate.now();
+				int idPrice = Integer.valueOf(String.valueOf(jtbProduct.getValueAt(selectedRow, 4)));
+				clientHandleSend.sendView(idPrice,idUser);
 			}
 		}
 	}
@@ -173,7 +160,7 @@ public class UserViews extends javax.swing.JFrame {
 	}
 
 	private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {
-
+		
 	}
 
 	// Variables declaration - do not modify

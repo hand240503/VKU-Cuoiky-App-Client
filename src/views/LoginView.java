@@ -121,6 +121,7 @@ public class LoginView extends javax.swing.JFrame {
 		String name = jtfUserName.getText().trim();
 		String pass = jtfPass.getText().trim();
 		clientHandleSend.login(name, pass);
+		clientHandleReceive.interrupt();
 		this.dispose();
 
 	}

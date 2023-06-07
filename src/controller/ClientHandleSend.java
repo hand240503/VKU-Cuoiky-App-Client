@@ -1,18 +1,16 @@
 package controller;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
 import com.google.gson.Gson;
 
+import model.DetailView;
 import model.Notify;
 import model.OrderDetail;
 
-import model.Orders;
 import model.UserInfo;
-import views.OrderdetailView;
 
 public class ClientHandleSend {
 
@@ -51,77 +49,38 @@ public class ClientHandleSend {
 		}
 	}
 
-	public void createOrder(String date, int idUser, int type) {
+	public void createOrderDetail(int idProduct, int idPrice, int num) {
 
-		Orders orders = new Orders();
-		orders.setDate(date);
-		orders.setId_user(idUser);
-		orders.setType(type);
-
-		Notify notify = new Notify();
-		notify.setNotify("Create-order");
-		notify.setData(orders);
-		String json = gson.toJson(notify);
-		byte[] jsonBytes = json.getBytes();
-		try {
-			synchronized (dos) {
-				dos.writeInt(json.length());
-				dos.write(jsonBytes);
-				dos.flush();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	public void insertOrderdetail(int idOrder, int idProduct, int idPrice, String date) {
 		OrderDetail detail = new OrderDetail();
-		detail.setId_order(idOrder);
 		detail.setId_product(idProduct);
 		detail.setId_price(idPrice);
-		detail.setDate(date);
-		Notify notify = new Notify();
-		notify.setNotify("Create-order-detail");
-		notify.setData(detail);
-
-		String json = gson.toJson(notify);
-		byte[] jsonBytes = json.getBytes();
-		try {
-			synchronized (dos) {
-				dos.writeInt(json.length());
-				dos.write(jsonBytes);
-				dos.flush();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void getSumEnd(int id) {
-		Notify notify = new Notify();
-		notify.setNotify("get-sum-end");
-		notify.setData(id);
-		String json = gson.toJson(notify);
-		byte[] jsonBytes = json.getBytes();
-		try {
-			synchronized (dos) {
-				dos.writeInt(json.length());
-				dos.write(jsonBytes);
-				dos.flush();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void getViewsOrderdetail(int id, String nameProduct, String nameUnit) {
-
-
-		Notify notify = new Notify();
-		notify.setNotify("load-view-order");
-		notify.setData("");
+		detail.setQuantity(num);
 		
+		Notify notify = new Notify();
+		notify.setNotify("Create-order-dt");
+		notify.setData(detail);
+		String json = gson.toJson(notify);
+		byte[] jsonBytes = json.getBytes();
+		try {
+			synchronized (dos) {
+				dos.writeInt(json.length());
+				dos.write(jsonBytes);
+				dos.flush();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void sendView(int idPrice, int idUser) {
+
+		DetailView detailView = new DetailView();
+		detailView.setIdPrice(idPrice);
+		detailView.setIdUser(idUser);
+		Notify notify = new Notify();
+		notify.setNotify("send-view");
+		notify.setData(detailView);
+
 		String json = gson.toJson(notify);
 		byte[] jsonBytes = json.getBytes();
 		try {

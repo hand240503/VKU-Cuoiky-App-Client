@@ -1,7 +1,6 @@
 package controller;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -14,8 +13,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import model.DetailView;
 import model.Product_Price_Views;
 import views.LoginView;
+import views.OrderdetailView;
 import views.UserViews;
 
 public class ClientHandleReceive extends Thread {
@@ -24,6 +25,7 @@ public class ClientHandleReceive extends Thread {
 	private DataInputStream dis;
 	private int idOrder;
 	private int sumEnd;
+	private int idUser;
 
 	public ClientHandleReceive(Socket socket) {
 		this.socket = socket;
@@ -37,10 +39,9 @@ public class ClientHandleReceive extends Thread {
 
 	@Override
 	public void run() {
-
 		try {
 			synchronized (dis) {
-				while (true) {
+				while (!socket.isClosed()) {
 					int jsonLength = dis.readInt();
 					byte[] jsonBytes = new byte[jsonLength];
 					dis.readFully(jsonBytes);
@@ -52,7 +53,9 @@ public class ClientHandleReceive extends Thread {
 					if (notifyMode.equals("login-success")) {
 						int idUser = Integer.parseInt(jsonObject.get("content").getAsString());
 						List<Product_Price_Views> pViews = handleProductViews(jsonObject);
-						new UserViews(pViews, idUser, socket).setVisible(true);
+						socket.close();
+						dis.close();
+						new UserViews(pViews, idUser).setVisible(true);
 					}
 					if (notifyMode.equals("login-failed")) {
 						String notifyContent = jsonObject.get("content").getAsString();
@@ -61,17 +64,38 @@ public class ClientHandleReceive extends Thread {
 						dis.close();
 						new LoginView().setVisible(true);
 					}
-					if (notifyMode.equals("getID-order")) {
-						idOrder = jsonObject.get("data").getAsInt();
+					if (notifyMode.equals("view-detail")) {
+						JsonElement data = jsonObject.get("data");
+						JsonObject dataObject = data.getAsJsonObject();
+						
+						int idProduct = dataObject.get("idproduct").getAsInt();
+						String nameProduct = dataObject.get("nameProduct").getAsString();
+						String nameUnit = dataObject.get("nameUnit").getAsString();
+						int ratio = dataObject.get("ratio").getAsInt();
+						double value = dataObject.get("value").getAsDouble();
+						int quantity = dataObject.get("quantity").getAsInt();
+						int idUser = dataObject.get("idUser").getAsInt();
+						int idPrice = dataObject.get("idPrice").getAsInt();
+						
+						DetailView detailView = new DetailView();
+						detailView.setIdproduct(idProduct);
+						detailView.setNameProduct(nameProduct);
+						detailView.setNameUnit(nameUnit);
+						detailView.setQuantity(quantity);
+						detailView.setRatio(ratio);
+						detailView.setValue(value);
+						detailView.setIdUser(idUser);
+						detailView.setIdPrice(idPrice);
+						
+						new OrderdetailView(detailView, socket).setVisible(true);
 					}
-					if (notifyMode.equals("sum-end-product")) {
-						sumEnd = jsonObject.get("data").getAsInt();
-					}
+
 				}
+
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Không có gì");
 		}
 
 	}
@@ -93,8 +117,6 @@ public class ClientHandleReceive extends Thread {
 		return pViews;
 	}
 
-	public int getIdorder() {
-		return idOrder;
-	}
+
 
 }
