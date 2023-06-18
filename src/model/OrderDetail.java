@@ -8,18 +8,20 @@ public class OrderDetail {
 	private int id_price;
 	private String date;
 	private int quantity;
+	private int status;
 
 	public OrderDetail() {
 
 	}
 
-	public OrderDetail(int id, int id_order, int id_product, int id_price, String date, int quantity) {
+	public OrderDetail(int id, int id_order, int id_product, int id_price, String date, int quantity, int status) {
 		this.id = id;
 		this.id_order = id_order;
 		this.id_product = id_product;
 		this.id_price = id_price;
 		this.date = date;
-		this.quantity = quantity;	
+		this.quantity = quantity;
+		this.status = status;
 	}
 
 	public int getId() {
@@ -69,7 +71,13 @@ public class OrderDetail {
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
-	
-	
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
 
 }

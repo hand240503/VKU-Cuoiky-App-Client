@@ -15,6 +15,8 @@ import com.google.gson.JsonParser;
 
 import model.DetailView;
 import model.Product_Price_Views;
+import model.UserDetailView;
+import views.CartView;
 import views.LoginView;
 import views.OrderdetailView;
 import views.UserViews;
@@ -67,7 +69,7 @@ public class ClientHandleReceive extends Thread {
 					if (notifyMode.equals("view-detail")) {
 						JsonElement data = jsonObject.get("data");
 						JsonObject dataObject = data.getAsJsonObject();
-						
+
 						int idProduct = dataObject.get("idproduct").getAsInt();
 						String nameProduct = dataObject.get("nameProduct").getAsString();
 						String nameUnit = dataObject.get("nameUnit").getAsString();
@@ -76,7 +78,7 @@ public class ClientHandleReceive extends Thread {
 						int quantity = dataObject.get("quantity").getAsInt();
 						int idUser = dataObject.get("idUser").getAsInt();
 						int idPrice = dataObject.get("idPrice").getAsInt();
-						
+
 						DetailView detailView = new DetailView();
 						detailView.setIdproduct(idProduct);
 						detailView.setNameProduct(nameProduct);
@@ -86,8 +88,27 @@ public class ClientHandleReceive extends Thread {
 						detailView.setValue(value);
 						detailView.setIdUser(idUser);
 						detailView.setIdPrice(idPrice);
-						
+
 						new OrderdetailView(detailView, socket).setVisible(true);
+					}
+
+					if (notifyMode.equals("list-userOrder")) {
+						JsonArray data = jsonObject.get("data").getAsJsonArray();
+						List<UserDetailView> list = new ArrayList<>();
+						System.out.println(data);
+						for (JsonElement element : data) {
+							JsonObject dataObject = element.getAsJsonObject();
+							UserDetailView userDetailView = new UserDetailView();
+							userDetailView.setId(dataObject.get("id").getAsInt());
+							userDetailView.setNameProduct(dataObject.get("nameProduct").getAsString());
+							userDetailView.setQuantity(dataObject.get("quantity").getAsInt());
+							userDetailView.setRatio(dataObject.get("ratio").getAsInt());
+							userDetailView.setUnit(dataObject.get("unit").getAsString());
+							userDetailView.setValue(dataObject.get("value").getAsDouble());
+							list.add(userDetailView);
+						}
+
+						new CartView(list,socket).setVisible(true);
 					}
 
 				}
@@ -116,7 +137,5 @@ public class ClientHandleReceive extends Thread {
 		}
 		return pViews;
 	}
-
-
 
 }

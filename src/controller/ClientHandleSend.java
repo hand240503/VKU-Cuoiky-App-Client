@@ -55,7 +55,7 @@ public class ClientHandleSend {
 		detail.setId_product(idProduct);
 		detail.setId_price(idPrice);
 		detail.setQuantity(num);
-		
+
 		Notify notify = new Notify();
 		notify.setNotify("Create-order-dt");
 		notify.setData(detail);
@@ -93,4 +93,39 @@ public class ClientHandleSend {
 			e.printStackTrace();
 		}
 	}
+
+	public void getuserOrder(int id) {
+		Notify notify = new Notify();
+		notify.setNotify("get-userOrder");
+		notify.setData(id);
+		String json = gson.toJson(notify);
+		byte[] jsonBytes = json.getBytes();
+		try {
+			synchronized (dos) {
+				dos.writeInt(json.length());
+				dos.write(jsonBytes);
+				dos.flush();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void cancelOrder(int id) {
+		Notify notify = new Notify();
+		notify.setNotify("cancel-order");
+		notify.setData(id);
+		String json = gson.toJson(notify);
+		byte[] jsonBytes = json.getBytes();
+		try {
+			synchronized (dos) {
+				dos.writeInt(json.length());
+				dos.write(jsonBytes);
+				dos.flush();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

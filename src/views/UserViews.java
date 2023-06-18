@@ -71,7 +71,6 @@ public class UserViews extends javax.swing.JFrame {
 		jLabel1 = new javax.swing.JLabel();
 		jbtnAddProduct = new javax.swing.JButton();
 		btnYourOrder = new javax.swing.JButton();
-		btnRefresh = new javax.swing.JButton();
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -100,14 +99,6 @@ public class UserViews extends javax.swing.JFrame {
 			}
 		});
 
-		btnRefresh.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-		btnRefresh.setText("Refresh");
-		btnRefresh.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				btnRefreshActionPerformed(evt);
-			}
-		});
-
 		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
 		jPanel1.setLayout(jPanel1Layout);
 		jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -118,8 +109,7 @@ public class UserViews extends javax.swing.JFrame {
 								.addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 899,
 										javax.swing.GroupLayout.PREFERRED_SIZE)
 								.addGroup(jPanel1Layout.createSequentialGroup().addGap(23, 23, 23)
-										.addComponent(jbtnAddProduct).addGap(32, 32, 32).addComponent(btnYourOrder)
-										.addGap(32, 32, 32).addComponent(btnRefresh)))
+										.addComponent(jbtnAddProduct).addGap(32, 32, 32).addComponent(btnYourOrder)))
 						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 		jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 				.addGroup(jPanel1Layout.createSequentialGroup().addGap(29, 29, 29).addComponent(jLabel1)
@@ -128,7 +118,7 @@ public class UserViews extends javax.swing.JFrame {
 								javax.swing.GroupLayout.PREFERRED_SIZE)
 						.addGap(34, 34, 34)
 						.addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(jbtnAddProduct).addComponent(btnYourOrder).addComponent(btnRefresh))
+								.addComponent(jbtnAddProduct).addComponent(btnYourOrder))
 						.addContainerGap(78, Short.MAX_VALUE)));
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -150,21 +140,17 @@ public class UserViews extends javax.swing.JFrame {
 			if (comfirm == JOptionPane.YES_NO_OPTION) {
 				LocalDate currentDate = LocalDate.now();
 				int idPrice = Integer.valueOf(String.valueOf(jtbProduct.getValueAt(selectedRow, 4)));
-				clientHandleSend.sendView(idPrice,idUser);
+				clientHandleSend.sendView(idPrice, idUser);
 			}
 		}
 	}
 
 	private void btnYourOrderActionPerformed(java.awt.event.ActionEvent evt) {
-
+		System.out.println(idUser);
+		clientHandleSend.getuserOrder(idUser);
 	}
 
-	private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {
-		
-	}
 
-	// Variables declaration - do not modify
-	private javax.swing.JButton btnRefresh;
 	private javax.swing.JButton btnYourOrder;
 	private javax.swing.JLabel jLabel1;
 	private javax.swing.JPanel jPanel1;
