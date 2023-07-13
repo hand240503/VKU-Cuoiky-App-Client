@@ -97,7 +97,7 @@ public class ClientHandleSend {
 	public void getuserOrder(int id) {
 		Notify notify = new Notify();
 		notify.setNotify("get-userOrder");
-		notify.setData(id);
+		notify.setId(id);
 		String json = gson.toJson(notify);
 		byte[] jsonBytes = json.getBytes();
 		try {
@@ -115,6 +115,72 @@ public class ClientHandleSend {
 		Notify notify = new Notify();
 		notify.setNotify("cancel-order");
 		notify.setData(id);
+		String json = gson.toJson(notify);
+		byte[] jsonBytes = json.getBytes();
+		try {
+			synchronized (dos) {
+				dos.writeInt(json.length());
+				dos.write(jsonBytes);
+				dos.flush();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void getListADProduct() {
+		Notify notify = new Notify();
+		notify.setNotify("get-list-ad-pro");
+		String json = gson.toJson(notify);
+		byte[] jsonBytes = json.getBytes();
+		try {
+			synchronized (dos) {
+				dos.writeInt(json.length());
+				dos.write(jsonBytes);
+				dos.flush();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void getStock() {
+		Notify notify = new Notify();
+		notify.setNotify("get-list-ad-stk");
+		String json = gson.toJson(notify);
+		byte[] jsonBytes = json.getBytes();
+		try {
+			synchronized (dos) {
+				dos.writeInt(json.length());
+				dos.write(jsonBytes);
+				dos.flush();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void getAccept() {
+		Notify notify = new Notify();
+		notify.setNotify("get-list-none-accept");
+		String json = gson.toJson(notify);
+		byte[] jsonBytes = json.getBytes();
+		try {
+			synchronized (dos) {
+				dos.writeInt(json.length());
+				dos.write(jsonBytes);
+				dos.flush();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void requestAccept(int id) {
+		Notify notify = new Notify();
+		notify.setNotify("accept-order-ad");
+		notify.setId(id);
 		String json = gson.toJson(notify);
 		byte[] jsonBytes = json.getBytes();
 		try {

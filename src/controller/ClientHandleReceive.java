@@ -13,12 +13,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import model.AdminProduct;
 import model.DetailView;
 import model.Product_Price_Views;
+import model.Stock;
 import model.UserDetailView;
+import views.AcceptOrderView;
+import views.AdminView;
 import views.CartView;
 import views.LoginView;
 import views.OrderdetailView;
+import views.StockView;
 import views.UserViews;
 
 public class ClientHandleReceive extends Thread {
@@ -27,7 +32,10 @@ public class ClientHandleReceive extends Thread {
 	private DataInputStream dis;
 	private int idOrder;
 	private int sumEnd;
-	private int idUser;
+	private int idUserRecevie;
+	private List<UserDetailView> listOrder = new ArrayList<>();
+	boolean check = false;
+	private List<AdminProduct> list;
 
 	public ClientHandleReceive(Socket socket) {
 		this.socket = socket;
@@ -51,13 +59,30 @@ public class ClientHandleReceive extends Thread {
 					JsonElement jsonElement = JsonParser.parseString(json);
 					JsonObject jsonObject = jsonElement.getAsJsonObject();
 					String notifyMode = jsonObject.get("notify").getAsString();
-
-					if (notifyMode.equals("login-success")) {
-						int idUser = Integer.parseInt(jsonObject.get("content").getAsString());
+					System.out.println(jsonObject);
+					if (notifyMode.equals("login-success-mode-1")) {
+						idUserRecevie = Integer.parseInt(jsonObject.get("content").getAsString());
 						List<Product_Price_Views> pViews = handleProductViews(jsonObject);
 						socket.close();
 						dis.close();
-						new UserViews(pViews, idUser).setVisible(true);
+						new UserViews(pViews, idUserRecevie).setVisible(true);
+					}
+					if (notifyMode.equals("login-success-mode-2")) {
+						List<AdminProduct> list = handleOrderAd(jsonObject);
+
+						new AdminView(list).setVisible(true);
+					}
+					if (notifyMode.equals("send-list-ad-pro")) {
+						List<AdminProduct> list = handleOrderAd(jsonObject);
+						new AdminView(list).setVisible(true);
+					}
+					if (notifyMode.equals("send-list-none-accept")) {
+						List<AdminProduct> list = handleNoneOrderAd(jsonObject);
+						new AcceptOrderView(list).setVisible(true);
+					}
+					if (notifyMode.equals("send-list-ad-stock")) {
+						List<Stock> list = handleStockAd(jsonObject);
+						new StockView(list).setVisible(true);
 					}
 					if (notifyMode.equals("login-failed")) {
 						String notifyContent = jsonObject.get("content").getAsString();
@@ -95,7 +120,7 @@ public class ClientHandleReceive extends Thread {
 					if (notifyMode.equals("list-userOrder")) {
 						JsonArray data = jsonObject.get("data").getAsJsonArray();
 						List<UserDetailView> list = new ArrayList<>();
-						System.out.println(data);
+						int idUser = jsonObject.get("id").getAsInt();
 						for (JsonElement element : data) {
 							JsonObject dataObject = element.getAsJsonObject();
 							UserDetailView userDetailView = new UserDetailView();
@@ -107,10 +132,18 @@ public class ClientHandleReceive extends Thread {
 							userDetailView.setValue(dataObject.get("value").getAsDouble());
 							list.add(userDetailView);
 						}
+						new CartView(list, socket, idUser, this).setVisible(true);
 
-						new CartView(list,socket).setVisible(true);
 					}
 
+					if (notifyMode.equals("not-cancel")) {
+						JOptionPane.showMessageDialog(null, "Đơn đã được cửa hàng xác nhận", "Thông báo",
+								JOptionPane.WARNING_MESSAGE);
+					}
+					if(notifyMode.equals("do-not-accept")) {
+						JOptionPane.showMessageDialog(null, "Khách Hàng đã hủy đơn ", "Thông báo",
+								JOptionPane.WARNING_MESSAGE);
+					}
 				}
 
 			}
@@ -136,6 +169,58 @@ public class ClientHandleReceive extends Thread {
 			pViews.add(pView);
 		}
 		return pViews;
+	}
+
+	public List<AdminProduct> handleOrderAd(JsonObject jsonObject) throws IOException {
+		JsonArray data = jsonObject.get("data").getAsJsonArray();
+		List<AdminProduct> list = new ArrayList<>();
+		for (JsonElement element : data) {
+			JsonObject dataObject = element.getAsJsonObject();
+			AdminProduct adminProduct = new AdminProduct();
+			adminProduct.setIdOrderdetails(dataObject.get("idOrderdetails").getAsInt());
+			adminProduct.setIdUser(dataObject.get("idUser").getAsInt());
+			adminProduct.setNameProduct(dataObject.get("nameProduct").getAsString());
+			adminProduct.setQuantity(dataObject.get("quantity").getAsInt());
+			adminProduct.setNameUnit(dataObject.get("nameUnit").getAsString());
+			adminProduct.setValue(dataObject.get("value").getAsFloat());
+			adminProduct.setUnit(dataObject.get("unit").getAsInt());
+			list.add(adminProduct);
+		}
+		return list;
+	}
+
+	public List<AdminProduct> handleNoneOrderAd(JsonObject jsonObject) throws IOException {
+		JsonArray data = jsonObject.get("data").getAsJsonArray();
+		List<AdminProduct> list = new ArrayList<>();
+		for (JsonElement element : data) {
+			JsonObject dataObject = element.getAsJsonObject();
+			AdminProduct adminProduct = new AdminProduct();
+			adminProduct.setIdOrderdetails(dataObject.get("idOrderdetails").getAsInt());
+			adminProduct.setIdUser(dataObject.get("idUser").getAsInt());
+			adminProduct.setNameProduct(dataObject.get("nameProduct").getAsString());
+			adminProduct.setQuantity(dataObject.get("quantity").getAsInt());
+			adminProduct.setNameUnit(dataObject.get("nameUnit").getAsString());
+			adminProduct.setValue(dataObject.get("value").getAsFloat());
+			adminProduct.setUnit(dataObject.get("unit").getAsInt());
+			list.add(adminProduct);
+		}
+		return list;
+	}
+
+	public List<Stock> handleStockAd(JsonObject jsonObject) {
+		JsonArray data = jsonObject.get("data").getAsJsonArray();
+
+		List<Stock> list = new ArrayList<>();
+		for (JsonElement e : data) {
+			JsonObject dataObject = e.getAsJsonObject();
+			Stock stock = new Stock();
+			stock.setId(dataObject.get("id").getAsInt());
+			stock.setNameProduct(dataObject.get("nameProduct").getAsString());
+			stock.setSum_end(dataObject.get("sum_end").getAsInt());
+			stock.setRatio_unit(dataObject.get("ratio_unit").getAsInt());
+			list.add(stock);
+		}
+		return list;
 	}
 
 }

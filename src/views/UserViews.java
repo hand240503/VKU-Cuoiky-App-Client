@@ -60,7 +60,10 @@ public class UserViews extends javax.swing.JFrame {
 			defaultTableModel.addRow(new Object[] { pView.getIdProduct(), pView.getNameProduct(), pView.getNameUnit(),
 					pView.getRatio(), pView.getIdPrice(), pView.getPrice() });
 		}
-
+		int[] rightAlignedColumns = { 0, 3, 4, 5 };
+		for (int columnIndex : rightAlignedColumns) {
+			jtbProduct.getColumnModel().getColumn(columnIndex).setCellRenderer(new RightAlignTableCellRenderer());
+		}
 	}
 
 	private void initComponents() {
@@ -146,10 +149,8 @@ public class UserViews extends javax.swing.JFrame {
 	}
 
 	private void btnYourOrderActionPerformed(java.awt.event.ActionEvent evt) {
-		System.out.println(idUser);
 		clientHandleSend.getuserOrder(idUser);
 	}
-
 
 	private javax.swing.JButton btnYourOrder;
 	private javax.swing.JLabel jLabel1;

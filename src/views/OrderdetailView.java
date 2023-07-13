@@ -181,14 +181,19 @@ public class OrderdetailView extends javax.swing.JFrame {
 	}// </editor-fold>
 
 	private void btnOrderActionPerformed(java.awt.event.ActionEvent evt) {
-		if (Integer.valueOf(jTextField1.getText()) <= num && Integer.valueOf(jTextField1.getText()) > 0) {
-			int soluong = Integer.valueOf(jTextField1.getText());
+		String input = jTextField1.getText().trim();
 
-			clientHandleSend.createOrderDetail(detailView.getIdproduct(), detailView.getIdPrice(),
-					soluong * detailView.getRatio());
-			this.dispose();
-		} else {
+		if (input.isEmpty() || !input.matches("\\d+")) {
 			JOptionPane.showMessageDialog(this, "Số lượng không chính xác", "Lỗi", JOptionPane.ERROR_MESSAGE);
+		} else {
+			int soluong = Integer.parseInt(input);
+			if (soluong <= 0 || soluong > num) {
+				JOptionPane.showMessageDialog(this, "Số lượng không chính xác", "Lỗi", JOptionPane.ERROR_MESSAGE);
+			} else {
+				clientHandleSend.createOrderDetail(detailView.getIdproduct(), detailView.getIdPrice(),
+						soluong * detailView.getRatio());
+				this.dispose();
+			}
 		}
 
 	}
@@ -200,10 +205,10 @@ public class OrderdetailView extends javax.swing.JFrame {
 	private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {
 		String input = jTextField1.getText().trim();
 
-		if (input.isEmpty() || !input.matches("\\d*\\.?\\d+")) {
+		if (input.isEmpty() || !input.matches("\\d+")) {
 			jlbTong.setText("0.0");
 		} else {
-			double sl = Double.parseDouble(input);
+			int sl = Integer.parseInt(input);
 			if (sl <= 0 || sl > num) {
 				jlbTong.setText("0.0");
 			} else {
@@ -211,9 +216,10 @@ public class OrderdetailView extends javax.swing.JFrame {
 				jlbTong.setText(String.valueOf(gia));
 			}
 		}
+
 	}
 
-	// Variables declaration - do not modify
+
 	private javax.swing.JButton btnExit;
 	private javax.swing.JButton btnOrder;
 	private javax.swing.JLabel jLabel1;

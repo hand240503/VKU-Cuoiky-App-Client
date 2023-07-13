@@ -7,6 +7,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
+import controller.ClientHandleReceive;
 import controller.ClientHandleSend;
 import model.UserDetailView;
 
@@ -16,12 +17,17 @@ public class CartView extends javax.swing.JFrame {
 	private DefaultTableModel defaultTableModel;
 	private Socket socket;
 	private ClientHandleSend clientHandleSend;
+	private int idUser;
+	private ClientHandleReceive clientHandleReceive;
 
-	public CartView(List<UserDetailView> detailView, Socket socket) {
+	public CartView(List<UserDetailView> detailView, Socket socket, int idUser,
+			ClientHandleReceive clientHandleReceive) {
 		initComponents();
 		this.setLocationRelativeTo(null);
 		this.socket = socket;
+		this.idUser = idUser;
 		clientHandleSend = new ClientHandleSend(socket);
+		this.clientHandleReceive = clientHandleReceive;
 		defaultTableModel = new DefaultTableModel() {
 			@Override
 			public boolean isCellEditable(int row, int column) {
@@ -39,15 +45,6 @@ public class CartView extends javax.swing.JFrame {
 		setdata(detailView);
 	}
 
-	public void setdata(List<UserDetailView> detailView) {
-		for (UserDetailView uOrder : detailView) {
-			int soluong = uOrder.getQuantity() / uOrder.getRatio();
-			double gia = soluong * uOrder.getValue();
-			defaultTableModel.addRow(new Object[] { uOrder.getId(), uOrder.getNameProduct(), uOrder.getUnit(), soluong,
-					uOrder.getValue(), gia });
-		}
-	}
-
 	private void initComponents() {
 
 		jScrollPane1 = new javax.swing.JScrollPane();
@@ -55,8 +52,9 @@ public class CartView extends javax.swing.JFrame {
 		jLabel1 = new javax.swing.JLabel();
 		jButton1 = new javax.swing.JButton();
 		jButton2 = new javax.swing.JButton();
+		jButton3 = new javax.swing.JButton();
 
-		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
 		jtb.setModel(new javax.swing.table.DefaultTableModel(new Object[][] { {}, {}, {}, {} }, new String[] {
 
@@ -79,8 +77,15 @@ public class CartView extends javax.swing.JFrame {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				jButton2ActionPerformed(evt);
 			}
-
 		});
+
+		jButton3.setText("Refresh");
+		jButton3.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				jButton3ActionPerformed(evt);
+			}
+		});
+
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
 		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -93,7 +98,8 @@ public class CartView extends javax.swing.JFrame {
 				.addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
 						layout.createSequentialGroup()
 								.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(jButton2).addGap(27, 27, 27).addComponent(jButton1).addGap(54, 54, 54)));
+								.addComponent(jButton2).addGap(18, 18, 18).addComponent(jButton3).addGap(18, 18, 18)
+								.addComponent(jButton1).addGap(35, 35, 35)));
 		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
 				javax.swing.GroupLayout.Alignment.TRAILING,
 				layout.createSequentialGroup().addContainerGap(44, Short.MAX_VALUE).addComponent(jLabel1)
@@ -102,7 +108,7 @@ public class CartView extends javax.swing.JFrame {
 								javax.swing.GroupLayout.PREFERRED_SIZE)
 						.addGap(27, 27, 27)
 						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(jButton1).addComponent(jButton2))
+								.addComponent(jButton1).addComponent(jButton2).addComponent(jButton3))
 						.addGap(26, 26, 26)));
 
 		pack();
@@ -125,8 +131,28 @@ public class CartView extends javax.swing.JFrame {
 		}
 	}
 
+	public void setdata(List<UserDetailView> detailView) {
+		for (UserDetailView uOrder : detailView) {
+			int soluong = uOrder.getQuantity() / uOrder.getRatio();
+			double gia = soluong * uOrder.getValue();
+			defaultTableModel.addRow(new Object[] { uOrder.getId(), uOrder.getNameProduct(), uOrder.getUnit(), soluong,
+					uOrder.getValue(), gia });
+		}
+		int[] rightAlignedColumns = { 0, 3, 4, 5 };
+		for (int columnIndex : rightAlignedColumns) {
+			jtb .getColumnModel().getColumn(columnIndex).setCellRenderer(new RightAlignTableCellRenderer());
+		}
+	}
+
+	private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
+		this.dispose();
+		clientHandleSend.getuserOrder(idUser);
+		
+	}
+
 	private javax.swing.JButton jButton1;
 	private javax.swing.JButton jButton2;
+	private javax.swing.JButton jButton3;
 	private javax.swing.JLabel jLabel1;
 	private javax.swing.JScrollPane jScrollPane1;
 	private javax.swing.JTable jtb;
